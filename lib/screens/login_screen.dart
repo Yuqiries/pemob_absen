@@ -27,12 +27,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
       if (user != null) {
         final prefs = await SharedPreferences.getInstance();
-        await prefs.setBool('isLoggedIn', true);
-        await prefs.setString('username', user.username);
+        prefs.setBool('isLoggedIn', true);
+        prefs.setString(
+          'username',
+          _usernameController.text,
+        ); // Simpan username
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const MainNavigation()),
+          MaterialPageRoute(
+            builder: (_) => MainNavigation(username: _usernameController.text),
+          ),
         );
       } else {
         setState(() {
@@ -54,8 +59,10 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               if (_errorLogin)
-                const Text("Login gagal. Username atau password salah.",
-                    style: TextStyle(color: Colors.red)),
+                const Text(
+                  "Login gagal. Username atau password salah.",
+                  style: TextStyle(color: Colors.red),
+                ),
               TextFormField(
                 controller: _usernameController,
                 decoration: const InputDecoration(labelText: "Username"),
@@ -68,10 +75,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 validator: (val) => val!.isEmpty ? "Masukkan password" : null,
               ),
               const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _login,
-                child: const Text("Login"),
-              ),
+              ElevatedButton(onPressed: _login, child: const Text("Login")),
               TextButton(
                 onPressed: () {
                   Navigator.push(
