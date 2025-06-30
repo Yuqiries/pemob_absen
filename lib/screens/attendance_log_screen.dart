@@ -35,22 +35,26 @@ class _AttendanceLogScreenState extends State<AttendanceLogScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Riwayat Kehadiran")),
-      body: _attendanceList.isEmpty
-          ? const Center(child: Text("Belum ada data absensi."))
-          : ListView.builder(
-              itemCount: _attendanceList.length,
-              itemBuilder: (context, index) {
-                final entry = _attendanceList[index];
-                return Card(
-                  margin: const EdgeInsets.symmetric(vertical: 6, horizontal: 12),
-                  child: ListTile(
-                    leading: const Icon(Icons.check_circle, color: Colors.green),
-                    title: Text("Tanggal: ${entry['date']}"),
-                    subtitle: Text("Waktu: ${entry['time']}"),
-                  ),
-                );
-              },
-            ),
+      body:
+          _attendanceList.isEmpty
+              ? const Center(child: Text("Belum ada data absensi."))
+              : ListView.builder(
+                itemCount: _attendanceList.length,
+                itemBuilder: (context, index) {
+                  final entry = _attendanceList[index];
+                  return Card(
+                    margin: const EdgeInsets.symmetric(
+                      vertical: 6,
+                      horizontal: 12,
+                    ),
+                    child: ListTile(
+                      leading: const Icon(Icons.access_time),
+                      title: Text("Waktu: ${entry['time']}"),
+                      subtitle: Text("Tanggal: ${entry['date']}"),
+                    ),
+                  );
+                },
+              ),
     );
   }
 }
