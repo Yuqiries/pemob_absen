@@ -3,6 +3,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 import '../db/database_helper.dart';
+import 'attendance_log_screen.dart';
 
 class QRScannerScreen extends StatefulWidget {
   const QRScannerScreen({super.key});
@@ -12,62 +13,42 @@ class QRScannerScreen extends StatefulWidget {
 }
 
 class _QRScannerScreenState extends State<QRScannerScreen> {
-  bool scanned = false;
-  late MobileScannerController controller;
+  bool _scanned = false;
 
-  @override
-  void initState() {
-    super.initState();
-    controller = MobileScannerController();
-  }
-
-  Future<void> _handleScan(String? code) async {
-    if (scanned || code == null) return;
-
-    setState(() => scanned = true);
+  void _handleScan(String qrData) async {
+    if (_scanned) return;
+    setState(() => _scanned = true);
 
     final prefs = await SharedPreferences.getInstance();
-    final username = prefs.getString('username') ?? "";
+    final username = prefs.getString('username') ?? 'Guest';
 
-    if (code == "absensi-valid") {
-      final now = DateTime.now();
-      final date = DateFormat('yyyy-MM-dd').format(now);
-      final time = DateFormat('HH:mm:ss').format(now);
+    final now = DateTime.now();
+    final tanggal = DateFormat('dd MMMM yyyy', 'id_ID').format(now);
+    final jam = DateFormat('HH:mm:ss').format(now);
 
-      await DatabaseHelper.instance.insertAttendance(username, date, time);
+    await DatabaseHelper.instance.insertAttendance(username, tanggal, jam);
 
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("✅ Absensi berhasil!")),
-        );
-      }
-    } else {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("❌ QR tidak valid.")),
-        );
-      }
+    if (context.mounted) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const AttendanceLogScreen()),
+      );
     }
-
-    await Future.delayed(const Duration(seconds: 2));
-    if (context.mounted) Navigator.pop(context);
-  }
-
-  @override
-  void dispose() {
-    controller.dispose();
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Scan QR Code")),
+      appBar: AppBar(title: const Text("Scan QR")),
       body: MobileScanner(
-        controller: controller,
-        onDetect: (barcodeCapture) {
-          final String? code = barcodeCapture.barcodes.first.rawValue;
-          _handleScan(code);
+        onDetect: (BarcodeCapture barcodeCapture) {
+          final List<Barcode> barcodes = barcodeCapture.barcodes;
+          if (barcodes.isNotEmpty) {
+            final String? code = barcodes.first.rawValue;
+            if (code != null) {
+              _handleScan(code);
+            }
+          }
         },
       ),
     );
