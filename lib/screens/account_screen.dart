@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../main.dart';
+import 'login_screen.dart'; // arahkan ke login screen, bukan main.dart
 
 class AccountScreen extends StatefulWidget {
   const AccountScreen({super.key});
@@ -11,21 +11,21 @@ class AccountScreen extends StatefulWidget {
 
 class _AccountScreenState extends State<AccountScreen> {
   String _username = "";
-  int _upahHarian = 50000;
-
-  final _upahController = TextEditingController();
+  final String _nama = "Kenza Nandita Rahma";
+  final String _tglLahir = "25 Mei 2003";
+  final String _jabatan = "Staff IT";
+  final String _divisi = "Teknologi Informasi";
 
   @override
   void initState() {
     super.initState();
-    _loadAccountInfo();
+    _loadUserInfo();
   }
 
-  Future<void> _loadAccountInfo() async {
+  Future<void> _loadUserInfo() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
       _username = prefs.getString('username') ?? "";
-      _upahHarian = prefs.getInt('upah') ?? 50000;
     });
   }
 
@@ -36,52 +36,16 @@ class _AccountScreenState extends State<AccountScreen> {
     if (context.mounted) {
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const MainNavigation()),
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
         (route) => false,
       );
     }
   }
 
-  Future<void> _showEditUpah() async {
-    _upahController.text = _upahHarian.toString();
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text("Edit Upah Harian"),
-        content: TextField(
-          controller: _upahController,
-          keyboardType: TextInputType.number,
-          decoration: const InputDecoration(labelText: "Upah Harian (Rp)"),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text("Batal"),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              final prefs = await SharedPreferences.getInstance();
-              await prefs.setInt('upah', int.parse(_upahController.text));
-              Navigator.pop(context);
-              _loadAccountInfo();
-            },
-            child: const Text("Simpan"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  @override
-  void dispose() {
-    _upahController.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Akun Saya")),
+      appBar: AppBar(title: const Text("Akun Saya"), centerTitle: true),
       body: Padding(
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -91,12 +55,20 @@ class _AccountScreenState extends State<AccountScreen> {
               title: Text("Username: $_username"),
             ),
             ListTile(
-              leading: const Icon(Icons.attach_money),
-              title: Text("Upah Harian: Rp $_upahHarian"),
-              trailing: IconButton(
-                icon: const Icon(Icons.edit),
-                onPressed: _showEditUpah,
-              ),
+              leading: const Icon(Icons.badge),
+              title: Text("Nama Lengkap: $_nama"),
+            ),
+            ListTile(
+              leading: const Icon(Icons.cake),
+              title: Text("Tanggal Lahir: $_tglLahir"),
+            ),
+            ListTile(
+              leading: const Icon(Icons.work),
+              title: Text("Jabatan: $_jabatan"),
+            ),
+            ListTile(
+              leading: const Icon(Icons.business),
+              title: Text("Divisi: $_divisi"),
             ),
             const SizedBox(height: 40),
             ElevatedButton.icon(
